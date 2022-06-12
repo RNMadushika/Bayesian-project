@@ -1,0 +1,28 @@
+"0","##BIC is lower the better. logmarg=(-1/2BIC).logmarg higher the better"
+"0","print(Games_bas)"
+"1","
+Call:
+"
+"1",""
+"1","bas.lm(formula = RATING ~ GAMERS + True_Achievement + Game_Score, 
+    data = training[-c(1, 6), ], prior = ""BIC"", modelprior = tr.beta.binomial(1, 
+        1, 5))"
+"1",""
+"1","
+
+"
+"1","
+ Marginal Posterior Inclusion Probabilities: 
+"
+"1","       Intercept  "
+"1","          GAMERS  "
+"1","True_Achievement  "
+"1","      Game_Score  "
+"1","
+"
+"1","          1.0000  "
+"1","          0.9999  "
+"1","          0.9428  "
+"1","          0.9241  "
+"1","
+"

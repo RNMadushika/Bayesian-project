@@ -1,0 +1,3 @@
+"0","#remove rows with missing values"
+"0","Games <- Games %>% drop_na()"
+"0","#Games"

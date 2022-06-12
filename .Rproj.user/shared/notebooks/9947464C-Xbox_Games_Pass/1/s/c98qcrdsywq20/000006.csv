@@ -1,0 +1,2 @@
+"0","par(mfrow = c(3, 3), col.lab = ""darkgrey"", col.axis = ""darkgrey"", col = ""darkgrey"")"
+"0","plot(Games.coef, subset = 2:6, ask = F)"

@@ -1,0 +1,192 @@
+---
+title: "Xbox game pass"
+author: "R.N.Madushika"
+date: "5/8/2022"
+output:
+  word_document: default
+  html_document: default
+---
+```{r}
+set.seed(1233453)
+```
+
+```{r}
+library(tidyverse)
+library(BAS)
+library(mice)
+library(dlookr)
+library(GGally)
+library(caret)
+```
+```{r}
+library(readr)
+Games <- read_csv("C:/Users/Mani/Desktop/ST406/archive (7)/Gamepass_Games_v1.csv")
+View(Games)
+Games <- data.frame(Games)
+```
+```{r}
+#Structure of the dataset
+str(Games)
+```
+```{r}
+head(Games)
+```
+
+```{r}
+summary(Games)
+```
+```{r}
+#data cleaning
+
+#Remove duplicates
+Games <- Games[!duplicated(Games$GAME), ]
+
+#Check for missing values
+sum(is.na(Games))
+```
+```{r}
+#remove the column with high missing values
+Games = subset(Games, select = -c(TIME) )
+#Games
+```
+```{r}
+#remove rows with missing values
+Games <- Games %>% drop_na()
+#Games
+```
+
+
+```{r}
+Games$RATIO <- as.numeric(Games$RATIO)
+#Games
+```
+
+```{r}
+#Exploratory data analysis
+describe(Games)
+#Scatter plots
+ggplot(Games, aes(x=RATIO, y=RATING)) + geom_point(color="blue")
+ggplot(Games, aes(x=GAMERS, y=RATING)) + geom_point(color="blue")
+ggplot(Games, aes(x=COMP.., y=RATING)) + geom_point(color="blue")
+ggplot(Games, aes(x=True_Achievement,y=RATING)) + geom_point(color="blue")
+ggplot(Games, aes(x=Game_Score, y=RATING)) + geom_point(color="blue")
+
+
+
+```
+```{r}
+#Find all correlations
+ggpairs(Games[-c(1,6)],)
+```
+
+```{r}
+
+#Building a model
+#split data into training and test data sets
+indxTrain <- createDataPartition(y = Games$RATING,p = 0.75,list = FALSE)
+training <- Games[indxTrain,]
+testing <- Games[-indxTrain,]
+#Check dimensions of the split
+prop.table(table(Games$RATING)) * 100
+```
+```{r}
+prop.table(table(training$RATING)) * 100
+```
+```{r}
+prop.table(table(testing$RATING)) * 100
+```
+```{r}
+#Bayesian Multiple Regression Model
+
+Games.bas = bas.lm(RATING ~ ., data = training[-c(1,6)], prior = "BIC",
+
+modelprior =tr.beta.binomial(1,1,5),
+include.always = ~ .,
+n.models = 1)
+
+Games.bas
+```
+```{r}
+Games.coef = coef(Games.bas)
+Games.coef
+```
+
+```{r}
+par(mfrow = c(3, 3), col.lab = "darkgrey", col.axis = "darkgrey", col = "darkgrey")
+plot(Games.coef, subset = 2:6, ask = F)
+```
+```{r}
+#Credible interval
+confint(Games.coef,parm=2:6)
+```
+```{r}
+##Since 0 is included within credible interval ratio,comp.. and true achievement are not significant to the model
+
+
+out = confint(Games.coef)[,1:2]
+# Extract the upper and lower bounds of the credible intervals
+names = c("posterior mean", "posterior std", colnames(out))
+out = cbind(Games.coef$postmean, Games.coef$postsd, out)
+colnames(out) = names
+round(out, 2)
+```
+```{r}
+#select the best model
+#AIc
+n=nrow(training)
+Games.lm=lm(RATING ~.,data=training[-c(1,6)])
+Games.step=step(Games.lm,k=log(n))
+
+```
+```{r}
+Games.BIC=bas.lm(RATING~.,data=training[-c(1,6)],prior="BIC",modelprior = tr.beta.binomial(1,1,5))
+Games.BIC
+```
+```{r}
+best=which.max(Games.BIC$logmarg)
+
+bestmodel=Games.BIC$which[[best]]
+bestmodel
+
+```
+```{r}
+bestgamma=rep(0, Games.BIC$n.vars)
+bestgamma[bestmodel+1]=1
+bestgamma
+```
+
+
+```{r}
+#summary of best 5 models
+Games_bas=bas.lm(RATING~GAMERS+True_Achievement+Game_Score,data=training[-c(1,6),],prior="BIC",modelprior = tr.beta.binomial(1,1,5))
+round(summary(Games_bas),3)
+```
+
+```{r}
+##BIC is lower the better. logmarg=(-1/2BIC).logmarg higher the better
+print(Games_bas)
+```
+
+```{r}
+#model validation
+#Predict testing set
+Predict <- predict(Games_bas,newdata = testing[-c(1,6)] )
+#Compute errors
+Error=testing$RATING-Predict$fit
+#Error
+#RMSE
+RMSE=sqrt(mean(Error^2))
+RMSE
+
+
+```
+
+```{r}
+Games.coef2=coef(Games_bas)
+confint(Games.coef2)
+```
+```{r}
+par(mfrow = c(2, 2), col.lab = "darkgrey", col.axis = "darkgrey", col = "darkgrey")
+plot(Games.coef2, subset = 2:4, ask = F)
+```
+

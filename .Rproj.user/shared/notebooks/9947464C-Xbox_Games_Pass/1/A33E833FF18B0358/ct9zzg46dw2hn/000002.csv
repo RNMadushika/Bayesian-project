@@ -1,0 +1,19 @@
+"0","library(readr)"
+"0","Games <- read_csv(""C:/Users/Mani/Desktop/ST406/archive (7)/Gamepass_Games_v1.csv"")"
+"2","
+[36m--[39m [1mColumn specification[22m [36m----------------------------------------------------------------------------------------[39m
+cols(
+  GAME = [31mcol_character()[39m,
+  RATIO = [31mcol_character()[39m,
+  GAMERS = [32mcol_number()[39m,
+  `COMP %` = [32mcol_double()[39m,
+  TIME = [31mcol_character()[39m,
+  RATING = [32mcol_double()[39m,
+  ADDED = [31mcol_character()[39m,
+  True_Achievement = [32mcol_double()[39m,
+  Game_Score = [32mcol_double()[39m
+)
+
+"
+"0","View(Games)"
+"0","Games <- data.frame(Games)"

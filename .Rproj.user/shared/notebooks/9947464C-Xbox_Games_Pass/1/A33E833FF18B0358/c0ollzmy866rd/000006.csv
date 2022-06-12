@@ -1,0 +1,1 @@
+"0","ggplot(Games, aes(x=GAMERS, y=RATING)) + geom_point(color=""blue"")"

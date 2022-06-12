@@ -1,0 +1,2 @@
+"0","#Scatter plots"
+"0","ggplot(Games, aes(x=RATIO, y=RATING)) + geom_point(color=""blue"")"

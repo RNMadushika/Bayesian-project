@@ -1,0 +1,3 @@
+"0","#remove the column with high missing values"
+"0","Games = subset(Games, select = -c(TIME) )"
+"0","#Games"
